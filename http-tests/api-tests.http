@@ -1,0 +1,284 @@
+### ─────────────────────────────────────────
+### PROGRAM SERVICE (via Gateway :8080)
+### ─────────────────────────────────────────
+
+### 1. Create Program - Computer Science
+POST http://localhost:8080/programs
+Content-Type: application/json
+
+{
+  "name": "Computer Science",
+  "description": "Bachelor degree in Computer Science",
+  "durationYears": 3
+}
+
+###
+
+### 2. Create Program - Mathematics
+POST http://localhost:8080/programs
+Content-Type: application/json
+
+{
+  "name": "Mathematics",
+  "description": "Bachelor degree in Mathematics",
+  "durationYears": 3
+}
+
+###
+
+### 3. Get All Programs
+GET http://localhost:8080/programs
+
+###
+
+### 4. Get Program by ID
+GET http://localhost:8080/programs/1
+
+###
+
+### 5. Update Program
+PUT http://localhost:8080/programs/1
+Content-Type: application/json
+
+{
+  "name": "Computer Science",
+  "description": "Updated: Bachelor degree in CS and Software Engineering",
+  "durationYears": 4
+}
+
+###
+
+### ─────────────────────────────────────────
+### STUDENT SERVICE (via Gateway :8080)
+### ─────────────────────────────────────────
+
+### 6. Create Student (linked to Program 1)
+POST http://localhost:8080/students
+Content-Type: application/json
+
+{
+  "firstName": "Zakaria",
+  "lastName": "Aissari",
+  "email": "zakaria@example.com",
+  "programId": 1
+}
+
+###
+
+### 7. Create Second Student
+POST http://localhost:8080/students
+Content-Type: application/json
+
+{
+  "firstName": "Amine",
+  "lastName": "Benali",
+  "email": "amine@example.com",
+  "programId": 2
+}
+
+###
+
+### 8. Get All Students (each includes program details)
+GET http://localhost:8080/students
+
+###
+
+### 9. Get Student by ID (shows embedded program object)
+GET http://localhost:8080/students/1
+
+###
+
+### 10. Update Student
+PUT http://localhost:8080/students/1
+Content-Type: application/json
+
+{
+  "firstName": "Zakaria",
+  "lastName": "Aissari",
+  "email": "zakaria.updated@example.com",
+  "programId": 1
+}
+
+###
+
+### 11. Delete Student
+DELETE http://localhost:8080/students/2
+
+###
+
+### ─────────────────────────────────────────
+### ERROR CASES - Test your error handling
+### ─────────────────────────────────────────
+
+### 12. Get non-existent student → expect 404
+GET http://localhost:8080/students/999
+
+###
+
+### 13. Create student with invalid data → expect 400
+POST http://localhost:8080/students
+Content-Type: application/json
+
+{
+  "firstName": "",
+  "lastName": "",
+  "email": "not-an-email",
+  "programId": null
+}
+
+###
+
+### 14. Create duplicate email → expect 400
+POST http://localhost:8080/students
+Content-Type: application/json
+
+{
+  "firstName": "Test",
+  "lastName": "User",
+  "email": "zakaria.updated@example.com",
+  "programId": 1
+}
+
+###
+
+### ─────────────────────────────────────────
+### NOTE SERVICE (via Gateway :8080)
+### ─────────────────────────────────────────
+
+### 15. Create Note for Student 1 - Mathematics
+POST http://localhost:8080/notes
+Content-Type: application/json
+
+{
+  "studentId": 1,
+  "subject": "Mathematics",
+  "value": 16.5,
+  "comment": "Excellent work"
+}
+
+###
+
+### 16. Create Note for Student 1 - Physics
+POST http://localhost:8080/notes
+Content-Type: application/json
+
+{
+  "studentId": 1,
+  "subject": "Physics",
+  "value": 14.0,
+  "comment": "Good progress"
+}
+
+###
+
+### 17. Create Note for Student 2 - Algorithms
+POST http://localhost:8080/notes
+Content-Type: application/json
+
+{
+  "studentId": 2,
+  "subject": "Algorithms",
+  "value": 18.0,
+  "comment": "Outstanding"
+}
+
+###
+
+### 18. Get All Notes
+GET http://localhost:8080/notes
+
+###
+
+### 19. Get Note by ID
+GET http://localhost:8080/notes/1
+
+###
+
+### 20. Get All Notes for Student 1
+GET http://localhost:8080/notes/student/1
+
+###
+
+### 21. Update Note
+PUT http://localhost:8080/notes/1
+Content-Type: application/json
+
+{
+  "studentId": 1,
+  "subject": "Mathematics",
+  "value": 17.5,
+  "comment": "Revised after correction"
+}
+
+###
+
+### 22. Delete Note
+DELETE http://localhost:8080/notes/3
+
+###
+
+### 23. Get non-existent note → expect 404
+GET http://localhost:8080/notes/999
+
+###
+
+### 24. Create note with invalid value → expect 400
+POST http://localhost:8080/notes
+Content-Type: application/json
+
+{
+  "studentId": 1,
+  "subject": "Math",
+  "value": 25,
+  "comment": "Invalid grade"
+}
+
+###
+
+### ─────────────────────────────────────────
+### DIRECT SERVICE CALLS (bypass gateway)
+### ─────────────────────────────────────────
+
+### 25. Call student-service directly
+GET http://localhost:8081/students
+
+###
+
+### 26. Call program-service directly
+GET http://localhost:8082/programs
+
+###
+
+### 27. Call note-service directly
+GET http://localhost:8083/notes
+
+###
+
+### ─────────────────────────────────────────
+### HEALTH CHECKS
+### ─────────────────────────────────────────
+
+### 28. Gateway health
+GET http://localhost:8080/actuator/health
+
+###
+
+### 29. Student-service health
+GET http://localhost:8081/actuator/health
+
+###
+
+### 30. Program-service health
+GET http://localhost:8082/actuator/health
+
+###
+
+### 31. Note-service health
+GET http://localhost:8083/actuator/health
+
+###
+
+### 32. Gateway routes (shows all configured routes)
+GET http://localhost:8080/actuator/gateway/routes
+
+###

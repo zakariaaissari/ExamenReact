@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org" lang="fr">
+<head>
+    <meta charset="UTF-8" />
+    <title>Relevé de notes</title>
+    <style type="text/css">
+        @page { size: A4; margin: 2cm; }
+        body { font-family: 'Helvetica', sans-serif; color: #1f2933; font-size: 12px; }
+
+        .header { text-align: center; border-bottom: 2px solid #0b3d91; padding-bottom: 10px; margin-bottom: 18px; }
+        .header .institution { font-size: 16px; font-weight: bold; color: #0b3d91; }
+        .header .year { font-size: 12px; color: #52606d; margin-top: 4px; }
+
+        .title { text-align: center; font-size: 18px; font-weight: bold; letter-spacing: 1px; margin: 8px 0 18px; }
+
+        .student-block { width: 100%; border-collapse: collapse; margin-bottom: 18px; }
+        .student-block td { padding: 4px 6px; vertical-align: top; }
+        .student-block .label { color: #52606d; width: 130px; font-weight: bold; }
+
+        table.notes { width: 100%; border-collapse: collapse; margin-bottom: 18px; }
+        table.notes th { background-color: #0b3d91; color: #ffffff; padding: 8px; text-align: left; font-size: 12px; }
+        table.notes td { padding: 7px 8px; border-bottom: 1px solid #e4e7eb; }
+        table.notes tr:nth-child(even) td { background-color: #f5f7fa; }
+        .grade-pass { color: #1a7f37; font-weight: bold; }
+        .grade-fail { color: #c1121f; font-weight: bold; }
+        .center { text-align: center; }
+
+        .summary { width: 100%; border-collapse: collapse; margin-top: 4px; }
+        .summary td { padding: 6px 8px; border: 1px solid #cbd2d9; }
+        .summary .k { background-color: #f5f7fa; font-weight: bold; width: 160px; color: #323f4b; }
+        .badge { padding: 2px 10px; border-radius: 3px; font-weight: bold; color: #ffffff; }
+        .badge-admis { background-color: #1a7f37; }
+        .badge-ajourne { background-color: #c1121f; }
+
+        .footer { margin-top: 34px; }
+        .footer .place-date { text-align: right; margin-bottom: 40px; }
+        .signature { text-align: right; }
+        .signature .line { display: inline-block; border-top: 1px solid #1f2933; width: 200px; padding-top: 4px; }
+    </style>
+</head>
+<body>
+
+    <div class="header">
+        <div class="institution" th:text="${r.institution}">Institution</div>
+        <div class="year">Année universitaire : <span th:text="${r.academicYear}">2025-2026</span></div>
+    </div>
+
+    <div class="title">RELEVÉ DE NOTES</div>
+
+    <table class="student-block">
+        <tr>
+            <td class="label">Nom et prénom</td>
+            <td th:text="${r.fullName}">Nom Prénom</td>
+            <td class="label">Identifiant</td>
+            <td th:text="${r.studentId}">1</td>
+        </tr>
+        <tr>
+            <td class="label">Filière</td>
+            <td th:text="${r.program != null ? r.program.name : '-'}">Filière</td>
+            <td class="label">Année universitaire</td>
+            <td th:text="${r.academicYear}">2025-2026</td>
+        </tr>
+        <tr>
+            <td class="label">Email</td>
+            <td th:text="${r.email}" colspan="3">email</td>
+        </tr>
+    </table>
+
+    <table class="notes">
+        <thead>
+            <tr>
+                <th>Matière / Élément</th>
+                <th class="center">Note /20</th>
+                <th class="center">Coefficient</th>
+                <th class="center">Mention</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr th:each="line : ${r.notes}">
+                <td th:text="${line.subject}">Matière</td>
+                <td class="center">
+                    <span th:classappend="${line.passed} ? 'grade-pass' : 'grade-fail'" th:text="${line.value}">0</span>
+                </td>
+                <td class="center" th:text="${line.coefficient}">1</td>
+                <td class="center" th:text="${line.mention}">Mention</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <table class="summary">
+        <tr>
+            <td class="k">Moyenne générale</td>
+            <td><strong th:text="${#numbers.formatDecimal(r.moyenne, 1, 2)} + ' / 20'">0 / 20</strong></td>
+        </tr>
+        <tr>
+            <td class="k">Mention générale</td>
+            <td th:text="${r.mention}">Mention</td>
+        </tr>
+        <tr>
+            <td class="k">Décision</td>
+            <td>
+                <span th:classappend="${r.admis} ? 'badge badge-admis' : 'badge badge-ajourne'" th:text="${r.decision}">Décision</span>
+            </td>
+        </tr>
+        <tr>
+            <td class="k">Rang / Classement</td>
+            <td th:text="${r.rangLabel}">1 / 1</td>
+        </tr>
+    </table>
+
+    <div class="footer">
+        <div class="place-date">
+            Fait à <span th:text="${r.lieu}">Ville</span>, le <span th:text="${dateStr}">01/01/2026</span>
+        </div>
+        <div class="signature">
+            <span class="line">Signature et cachet</span>
+        </div>
+    </div>
+
+</body>
+</html>

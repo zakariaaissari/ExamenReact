@@ -1,0 +1,28 @@
+server:
+  port: 8761
+
+spring:
+  application:
+    name: discovery-service
+
+eureka:
+  instance:
+    hostname: localhost
+  client:
+    # This is the Eureka SERVER — it must NOT register with itself
+    register-with-eureka: false
+    # It also does not need to fetch the registry from itself
+    fetch-registry: false
+    service-url:
+      defaultZone: http://${eureka.instance.hostname}:${server.port}/eureka/
+  server:
+    # Wait time before evicting a service that stopped sending heartbeats (ms)
+    eviction-interval-timer-in-ms: 5000
+    # Disable self-preservation in development so stale instances are removed quickly
+    enable-self-preservation: false
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health, info

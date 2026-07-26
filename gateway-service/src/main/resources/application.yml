@@ -1,0 +1,89 @@
+server:
+  port: 8080
+
+spring:
+  application:
+    name: gateway-service
+
+  cloud:
+    gateway:
+      # Automatically create routes from all services registered in Eureka.
+      # With this enabled, a service named STUDENT-SERVICE is reachable at
+      # /student-service/** without any manual route definition.
+      # We still define explicit routes below for cleaner public URLs.
+      discovery:
+        locator:
+          enabled: true
+          lower-case-service-id: true  # use lowercase: /student-service not /STUDENT-SERVICE
+
+      routes:
+        # ── Auth Service ─────────────────────────────────────────────────────
+        # Public: the JWT filter skips /api/auth so login/refresh work unauthenticated.
+        - id: auth-service-route
+          uri: lb://auth-service
+          predicates:
+            - Path=/api/auth/**
+          filters:
+            - StripPrefix=0
+
+        # ── Student Service: relevé (transcript) API ─────────────────────────
+        # Placed before the /students route; forwards /api/students/** (e.g.
+        # /api/students/1/releve/pdf) to student-service unchanged.
+        - id: student-releve-route
+          uri: lb://student-service
+          predicates:
+            - Path=/api/students/**
+          filters:
+            - StripPrefix=0
+
+        # ── Student Service ──────────────────────────────────────────────────
+        - id: student-service-route
+          # lb:// tells the gateway to use Eureka to resolve the address.
+          # STUDENT-SERVICE must match the spring.application.name of that service.
+          uri: lb://student-service
+          predicates:
+            # Any request whose path starts with /students is forwarded here.
+            - Path=/students/**
+          filters:
+            # Strip the first path segment so /students/1 becomes /students/1
+            # on the downstream service (no segment to strip in this case,
+            # but useful if you later prefix with /api/v1/**).
+            - StripPrefix=0
+
+        # ── Program Service ───────────────────────────────────────────────────
+        - id: program-service-route
+          uri: lb://program-service
+          predicates:
+            - Path=/programs/**
+          filters:
+            - StripPrefix=0
+
+        # ── Note Service ──────────────────────────────────────────────────────
+        - id: note-service-route
+          uri: lb://note-service
+          predicates:
+            - Path=/notes/**
+          filters:
+            - StripPrefix=0
+
+# Eureka Client configuration
+eureka:
+  client:
+    service-url:
+      defaultZone: http://localhost:8761/eureka/
+    # Fetch the registry every 5 seconds so new services appear quickly
+    registry-fetch-interval-seconds: 5
+  instance:
+    prefer-ip-address: true
+
+management:
+  endpoints:
+    web:
+      exposure:
+        # /actuator/gateway/routes shows all configured routes — very useful for debugging
+        include: health, info, gateway
+
+# JWT validation. app.jwt.secret MUST be identical to auth-service's value.
+app:
+  jwt:
+    secret: "${JWT_SECRET}"
